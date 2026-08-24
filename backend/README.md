@@ -28,8 +28,8 @@ sem necessidade de chave):
 
 Traz **nome completo, ano, tipo, gêneros, nota e a capa oficial** de cada
 título (a imagem que a própria API já devolve). Por padrão importa até
-~500 títulos por tipo — configurável em `JIKAN_PAGINAS_POR_TIPO` no `.env`
-— totalizando alguns milhares de animes e mangás. "Absolutamente todos" os
+~1.000 títulos por tipo — configurável em `JIKAN_PAGINAS_POR_TIPO` no `.env`
+— totalizando uns 5.000 animes e 5.000 mangás. "Absolutamente todos" os
 títulos do MyAnimeList (dezenas de milhares) não é algo que dá pra puxar de
 verdade: a API pública tem limite de requisições, e baixar tudo levaria
 dias além de sobrecarregar um serviço gratuito e compartilhado — mas o
@@ -44,7 +44,7 @@ continuam sendo só as amostras de licença aberta já usadas em todo o app.
 Pode ser executado de novo a qualquer momento — ele apaga só o que foi
 importado antes (`origem = 'jikan'`), sem tocar no catálogo fictício de
 demonstração. Precisa de Node 18+ e acesso à internet (respeita o limite de
-requisições da API pública, então com o volume padrão leva uns 10-15
+requisições da API pública, então com o volume padrão leva uns 20-30
 minutos).
 
 ## Rotas
@@ -53,7 +53,7 @@ minutos).
 | Método | Rota | Descrição |
 |---|---|---|
 | POST | `/api/auth/register` | `{ nome, email, senha }` → cria conta e retorna token |
-| POST | `/api/auth/login` | `{ email, senha }` → retorna token |
+| POST | `/api/auth/login` | `{ email, senha }` → aceita email OU usuário; retorna token |
 | GET | `/api/auth/me` | *(autenticada)* dados do usuário logado |
 
 ### Animes (pública)

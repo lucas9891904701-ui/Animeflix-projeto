@@ -25,7 +25,7 @@
 // Uso:  npm run import:jikan
 // Requer Node 18+ (fetch nativo) e acesso à internet. Respeita o
 // limite de requisições da API pública (roda devagar de propósito —
-// com o volume padrão, leva uns 10-15 minutos).
+// com o volume padrão, leva uns 20-30 minutos).
 
 require("dotenv").config();
 const db = require("./db");
@@ -33,7 +33,7 @@ const db = require("./db");
 const JIKAN_BASE = "https://api.jikan.moe/v4";
 const ANIME_TYPES = ["tv", "movie", "ova", "ona", "special"];
 const MANGA_TYPES = ["manga", "novel", "manhwa", "manhua", "oneshot"];
-const PAGINAS_POR_TIPO = Number(process.env.JIKAN_PAGINAS_POR_TIPO) || 20; // 20 páginas x 25 = até 500 por tipo (~2.500 animes + ~2.500 mangás)
+const PAGINAS_POR_TIPO = Number(process.env.JIKAN_PAGINAS_POR_TIPO) || 40; // 40 páginas x 25 = até 1.000 por tipo (~5.000 animes + ~5.000 mangás)
 const ATRASO_MS = 900; // ~1 requisição/segundo — dentro do limite público da Jikan
 
 const SAMPLE_VIDEOS = [
@@ -169,7 +169,7 @@ async function importarMangas(cacheGeneros) {
 }
 
 async function main() {
-  console.log("Importando catálogo real da Jikan API — com o volume padrão, leva uns 10-15 minutos (respeitando o limite de requisições)...\n");
+  console.log("Importando catálogo real da Jikan API — com o volume padrão, leva uns 20-30 minutos (respeitando o limite de requisições)...\n");
 
   limparCatalogoImportadoAnterior(); // reexecutável: não duplica nem mexe no catálogo mock
 

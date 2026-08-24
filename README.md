@@ -49,8 +49,10 @@ de `AnimeFlix.jsx`.
 ## O que já está pronto
 - Telas: Inicial, Explorar, Mangás, Pesquisa, Detalhes, Temporadas/Episódios,
   Player, Leitor de mangá, Favoritos, Histórico, Login/Cadastro, Perfil
-- Backend: autenticação (JWT), API de Animes, API de Mangás, gêneros,
-  favoritos e histórico/leitura por usuário
+- Backend: autenticação (JWT, login por email ou usuário), API de Animes,
+  API de Mangás, gêneros, favoritos e histórico/leitura por usuário
+- Conta do dono do app pré-cadastrada (usuário `ls_dev`), com emblema 👑
+  exclusivo ao lado do nome — em qualquer outra conta o emblema não aparece
 - Catálogo grande e real (opcional): importador via Jikan API, cobrindo
   todos os tipos de anime (TV, Filme, OVA, ONA, Especial) e de mangá
   (Mangá, Novel, Manhwa — inclui webtoons —, Manhua, One-shot), com

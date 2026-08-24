@@ -111,3 +111,17 @@ const transacao = db.transaction(() => {
 
 transacao();
 console.log(`Seed concluído: ${ANIMES.length} animes e ${MANGAS.length} mangás inseridos.`);
+
+// ===== Conta do dono do app (usuário: ls_dev) — emblema 👑 exclusivo =====
+// Idempotente: pode rodar o seed de novo sem duplicar ou perder a conta.
+const bcrypt = require("bcryptjs");
+const DONO_USUARIO = "ls_dev";
+const DONO_SENHA_HASH = bcrypt.hashSync("éueliessidono", 10);
+
+db.prepare(
+  "INSERT OR IGNORE INTO users (nome, email, usuario, senha_hash, eh_dono) VALUES (?, ?, ?, ?, 1)"
+).run("ls_dev", "ls_dev@animeflix.dev", DONO_USUARIO, DONO_SENHA_HASH);
+
+db.prepare("UPDATE users SET senha_hash = ?, eh_dono = 1 WHERE usuario = ?").run(DONO_SENHA_HASH, DONO_USUARIO);
+
+console.log(`Conta do dono garantida (usuário: ${DONO_USUARIO}).`);

@@ -16,7 +16,9 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    usuario TEXT UNIQUE,        -- login alternativo (opcional); a maioria dos usuários entra só com email
     senha_hash TEXT NOT NULL,
+    eh_dono INTEGER DEFAULT 0,  -- 1 só para a conta do dono do app (mostra o emblema 👑)
     criado_em TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -135,5 +137,7 @@ adicionarColunaSeNaoExiste("animes", "capa_url", "TEXT");
 adicionarColunaSeNaoExiste("mangas", "origem", "TEXT DEFAULT 'mock'");
 adicionarColunaSeNaoExiste("mangas", "tipo", "TEXT DEFAULT 'manga'");
 adicionarColunaSeNaoExiste("mangas", "capa_url", "TEXT");
+adicionarColunaSeNaoExiste("users", "usuario", "TEXT");
+adicionarColunaSeNaoExiste("users", "eh_dono", "INTEGER DEFAULT 0");
 
 module.exports = db;

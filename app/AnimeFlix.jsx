@@ -181,7 +181,7 @@ let MANGAS = MOCK_MANGAS;
    função cai automaticamente pro catálogo mock — a demonstração
    nunca quebra, e nenhuma tela precisa saber qual dos dois está
    sendo usado. */
-const API_BASE = "http://localhost:3333/api"; // ajuste para o domínio real em produção
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3333/api";
 
 let authToken = null; // token JWT em memória — some ao recarregar a página, por design (sem localStorage)
 
@@ -300,21 +300,28 @@ const api = {
    versão em memória com as mesmas regras (mesmo contrato: recebe
    dados, devolve o usuário ou lança um erro com mensagem). Erros
    de validação vindos da API real (ex.: "email já cadastrado")
-   são repassados normalmente — só quedas de rede acionam o mock. */
-const mockAuthUsers = [];
+   são repassados normalmente — só quedas de rede acionam o mock.
+
+   A conta do dono do app (usuário: ls_dev) já vem pré-cadastrada
+   aqui também, pra funcionar mesmo se a API estiver offline — é a
+   única com ehDono: true, o que liga o emblema 👑 exclusivo dela. */
+const mockAuthUsers = [
+  { id: "0", nome: "ls_dev", email: "ls_dev@animeflix.dev", usuario: "ls_dev", senha: "éueliessidono", ehDono: true },
+];
 const mockAuth = {
   register({ nome, email, senha }) {
     if (!nome || !email || !senha) throw new Error("Preencha nome, email e senha");
     if (senha.length < 6) throw new Error("A senha precisa ter ao menos 6 caracteres");
     if (mockAuthUsers.some((u) => u.email === email.toLowerCase())) throw new Error("Este email já está cadastrado");
-    const usuario = { id: String(mockAuthUsers.length + 1), nome, email: email.toLowerCase(), senha };
+    const usuario = { id: String(mockAuthUsers.length + 1), nome, email: email.toLowerCase(), senha, ehDono: false };
     mockAuthUsers.push(usuario);
-    return { id: usuario.id, nome: usuario.nome, email: usuario.email };
+    return { id: usuario.id, nome: usuario.nome, email: usuario.email, ehDono: false };
   },
   login({ email, senha }) {
-    const usuario = mockAuthUsers.find((u) => u.email === email.toLowerCase());
-    if (!usuario || usuario.senha !== senha) throw new Error("Email ou senha inválidos");
-    return { id: usuario.id, nome: usuario.nome, email: usuario.email };
+    const valor = email.toLowerCase();
+    const usuario = mockAuthUsers.find((u) => u.email.toLowerCase() === valor || u.usuario?.toLowerCase() === valor);
+    if (!usuario || usuario.senha !== senha) throw new Error("Email/usuário ou senha inválidos");
+    return { id: usuario.id, nome: usuario.nome, email: usuario.email, usuario: usuario.usuario, ehDono: !!usuario.ehDono };
   },
 };
 
@@ -482,7 +489,7 @@ function AuthScreen({ onAuth }) {
 
         <div className="af-card" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px" }}>
           <Mail size={16} color="var(--muted)" />
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required
+          <input type={modo === "login" ? "text" : "email"} value={email} onChange={(e) => setEmail(e.target.value)} placeholder={modo === "login" ? "Email ou usuário" : "Email"} required
             style={{ background: "transparent", border: "none", outline: "none", color: "var(--text)", fontSize: 14, width: "100%" }} />
         </div>
 
@@ -655,13 +662,16 @@ function HomeScreen({ nav, history, user, onOpenProfile }) {
           <div className="af-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: 0.5 }}>
             Anime<span style={{ color: "var(--pink)" }}>Flix</span>
           </div>
-          <button onClick={onOpenProfile} style={{
-            width: 34, height: 34, borderRadius: "50%", border: "1px solid var(--line)",
-            background: "linear-gradient(135deg, var(--pink), var(--violet))",
-            color: "#fff", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            {(user?.nome || "?").charAt(0).toUpperCase()}
-          </button>
+          <div style={{ position: "relative" }}>
+            <button onClick={onOpenProfile} style={{
+              width: 34, height: 34, borderRadius: "50%", border: "1px solid var(--line)",
+              background: "linear-gradient(135deg, var(--pink), var(--violet))",
+              color: "#fff", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              {(user?.nome || "?").charAt(0).toUpperCase()}
+            </button>
+            {user?.ehDono && <span style={{ position: "absolute", top: -6, right: -6, fontSize: 14 }}>👑</span>}
+          </div>
         </div>
         <div style={{ position: "absolute", bottom: 22, left: 16, right: 16 }}>
           <div className="af-chip" style={{ display: "inline-block", marginBottom: 10 }}>Em destaque</div>
@@ -1189,11 +1199,16 @@ function ProfileSheet({ user, online, onClose, onLogout }) {
       }}>
         <div style={{ width: 36, height: 4, background: "var(--line)", borderRadius: 999, margin: "0 auto 18px" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-          <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, var(--pink), var(--violet))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700 }}>
-            {(user?.nome || "?").charAt(0).toUpperCase()}
+          <div style={{ position: "relative" }}>
+            <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, var(--pink), var(--violet))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700 }}>
+              {(user?.nome || "?").charAt(0).toUpperCase()}
+            </div>
+            {user?.ehDono && <span style={{ position: "absolute", top: -6, right: -6, fontSize: 16 }}>👑</span>}
           </div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>{user?.nome}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+              {user?.nome} {user?.ehDono && <span title="Dono do app">👑</span>}
+            </div>
             <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{user?.email}</div>
           </div>
         </div>
